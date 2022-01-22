@@ -17,16 +17,23 @@ public class HomeWorkTest {
         Configuration.browserSize = "1920x1080";
     }
 
+    static Stream<Arguments> commonSearchTestCsvSource() {
+        return Stream.of(
+                Arguments.of("Титаник", "Джеймс"),
+                Arguments.of("Декстер", "Джон")
+        );
+    }
+
   @CsvSource(value = {
-        "Титаник, Titanic",
-        "Декстер, Dexter"
+        "Титаник, Джеймс",
+        "Декстер, Джон"
     })
 
   @ParameterizedTest(name = "Тестирование поиска фильма: {0}")
-  public void commonSearchTest(String testData, String expected) {
+  void commonSearchTest(String testData, String expected) {
       open("https://www.kinopoisk.ru/");
       $("[type=\"text\"]").setValue(testData).pressEnter();
-      $("info").shouldHave(Condition.text(expected));
+      $("[class=\"director\"]").shouldHave(Condition.text(expected));
   }
 
     @AfterEach
