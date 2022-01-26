@@ -2,9 +2,12 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
@@ -17,6 +20,24 @@ public class HomeWorkTest {
         Configuration.browserSize = "1920x1080";
     }
 
+
+    @BeforeEach
+    void BeforeEach() {
+        open("https://www.kinopoisk.ru/");
+    }
+
+    //1
+    @CsvSource(value = {
+            "Титаник, Джеймс",
+            "Декстер, Джон"
+    })
+    @ParameterizedTest(name = "Тестирование поиска фильма: {0}")
+    void commonSearchTest1(String testData, String expected) {
+        $("[type=\"text\"]").setValue(testData).pressEnter();
+        $("[class=\"director\"]").shouldHave(Condition.text(expected));
+    }
+
+    //2
     static Stream<Arguments> commonSearchTestCsvSource() {
         return Stream.of(
                 Arguments.of("Титаник", "Джеймс"),
@@ -24,19 +45,24 @@ public class HomeWorkTest {
         );
     }
 
-  @CsvSource(value = {
-        "Титаник, Джеймс",
-        "Декстер, Джон"
-    })
+    @MethodSource("commonSearchTestCsvSource")
+    @ParameterizedTest(name = "Тестирование поиска фильма: {0}")
+    void commonSearchTest2(String testData, String expected) {
+        $("[type=\"text\"]").setValue(testData).pressEnter();
+        $("[class=\"director\"]").shouldHave(Condition.text(expected));
+    }
 
-  @ParameterizedTest(name = "Тестирование поиска фильма: {0}")
-  void commonSearchTest(String testData, String expected) {
-      open("https://www.kinopoisk.ru/");
-      $("[type=\"text\"]").setValue(testData).pressEnter();
-      $("[class=\"director\"]").shouldHave(Condition.text(expected));
-  }
+    //3
+    @ValueSource(strings = {"Титаник", "Декстер"})
+    @ParameterizedTest(name = "Тестирование поиска фильма: {0}")
+    void commonSearchTest3(String testData) {
+        $("[type=\"text\"]").setValue(testData).pressEnter();
+        $("[class=\"name\"]").shouldHave(Condition.text(testData));
+    }
 
     @AfterEach
     void AfterEach() {
-        clearBrowserCookies(); }
+        // Selenide.closeWebDriver();
+        clearBrowserCookies();
+    }
 }
